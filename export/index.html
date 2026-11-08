@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="sq" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALFilms24 - Filma me Titra Shqip në HD & 4K (HTML Standalone)</title>
+    <meta name="description" content="Kinemaja juaj online me filmat dhe serialet më të fundit me titra shqip në HD dhe 4K.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0A090D; color: #F4F4F5; }
+        .font-display { font-family: 'Outfit', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="border-b border-zinc-800 bg-[#0A090D]/90 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+        <a href="index.html" class="text-2xl font-bold font-display text-white">
+            ALFilms<span class="text-red-500">24</span>
+        </a>
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-zinc-400 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded">Cilësi 4K & Titra Shqip</span>
+        </div>
+    </header>
+
+    <!-- Player Container -->
+    <section id="player-container" class="hidden max-w-6xl mx-auto px-4 sm:px-6 pt-6">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
+            <div class="p-3 bg-zinc-900 border-b border-zinc-800 flex flex-wrap justify-between items-center gap-2">
+                <span id="player-title" class="font-semibold text-sm text-white truncate max-w-md">Duke ngarkuar filmin...</span>
+                <div class="flex items-center gap-2">
+                    <a id="player-external-link" href="#" target="_blank" rel="noopener noreferrer" class="text-xs px-3 py-1.5 bg-red-600 hover:bg-red-500 rounded text-white font-bold shadow transition">Hap në Ekran të Plotë (Mobile / Pa Sandbox)</a>
+                    <button onclick="mbyllPlayer()" class="text-xs px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded text-zinc-300">Mbyll</button>
+                </div>
+            </div>
+
+            <!-- Server Switcher Bar -->
+            <div class="px-3 py-2 bg-zinc-950 border-b border-zinc-800/80 flex flex-wrap items-center gap-2 text-xs">
+                <span class="text-zinc-400 font-medium">Serveri:</span>
+                <button onclick="ndryshoServer(1)" id="srv-btn-1" class="px-2.5 py-1 rounded bg-red-600 text-white font-medium text-xs">Server 1 (AutoEmbed HD)</button>
+                <button onclick="ndryshoServer(2)" id="srv-btn-2" class="px-2.5 py-1 rounded bg-zinc-900 text-zinc-300 hover:text-white font-medium text-xs">Server 2 (VidLink VIP)</button>
+                <button onclick="ndryshoServer(3)" id="srv-btn-3" class="px-2.5 py-1 rounded bg-zinc-900 text-zinc-300 hover:text-white font-medium text-xs">Server 3 (VidSrc HD)</button>
+                <button onclick="ndryshoServer(4)" id="srv-btn-4" class="px-2.5 py-1 rounded bg-zinc-900 text-zinc-300 hover:text-white font-medium text-xs">Server 4 (MultiEmbed)</button>
+            </div>
+
+            <div class="aspect-video w-full bg-black relative">
+                <iframe id="stream-frame" src="" class="w-full h-full border-0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-same-origin allow-scripts allow-top-navigation-by-user-activation" referrerpolicy="origin"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold font-display text-white">Filmat e Zgjedhur ALFilms24</h1>
+            <div class="flex items-center gap-2">
+                <input id="api-key-input" type="password" placeholder="Vendos Çelësin TMDb API..." class="bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-red-500">
+                <button onclick="ngarkoMeApi()" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-semibold">Ngarko API</button>
+            </div>
+        </div>
+
+        <div id="movies-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <!-- Shfaqet me JavaScript -->
+        </div>
+    </main>
+
+    <script>
+        let TMDB_KEY = "ab546f5b4161f91cc8e87d32424c041e";
+        const EMBED_SERVER = "https://autoembed.me/movie/tmdb/{id}";
+
+        const filmatDemo = [
+            { id: "823464", title: "Neo-Tirana: Shadow Protocol", year: "2026", rating: "9.3", poster: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=80" },
+            { id: "693134", title: "Dune: Part Two", year: "2024", rating: "8.6", poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=80" },
+            { id: "558449", title: "Gladiator II", year: "2024", rating: "7.8", poster: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80" },
+            { id: "872585", title: "Oppenheimer", year: "2023", rating: "8.9", poster: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500&auto=format&fit=crop&q=80" },
+            { id: "157336", title: "Interstellar", year: "2014", rating: "8.7", poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&auto=format&fit=crop&q=80" }
+        ];
+
+        function renditFilmat(lista) {
+            const grid = document.getElementById('movies-grid');
+            grid.innerHTML = lista.map(f => `
+                <div class="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden group cursor-pointer hover:border-red-500 transition-all" onclick="hapPlayer('${f.id}', '${f.title}')">
+                    <img src="${f.poster}" class="w-full aspect-[3/4] object-cover group-hover:scale-105 transition duration-300">
+                    <div class="p-3">
+                        <h3 class="font-semibold text-sm truncate text-white">${f.title}</h3>
+                        <div class="text-xs text-zinc-400 mt-1">${f.year} · ★ ${f.rating}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function ngarkoMeApi() {
+            const val = document.getElementById('api-key-input').value.trim();
+            if (!val) {
+                alert('Ju lutem vendosni çelësin tuaj të API-së.');
+                return;
+            }
+            TMDB_KEY = val;
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_KEY}&language=en-US`);
+                const data = await res.json();
+                if (data.results) {
+                    const mapped = data.results.map(f => ({
+                        id: f.id,
+                        title: f.title,
+                        year: f.release_date ? f.release_date.slice(0,4) : '2024',
+                        rating: f.vote_average.toFixed(1),
+                        poster: 'https://image.tmdb.org/t/p/w500' + f.poster_path
+                    }));
+                    renditFilmat(mapped);
+                }
+            } catch (e) {
+                alert('Dështoi lidhja me API.');
+            }
+        }
+
+        let currentMovieId = null;
+        let currentTitle = '';
+        let currentServerNum = 1;
+
+        function merrUrlServeri(serverNum, id) {
+            switch(serverNum) {
+                case 1: return `https://autoembed.me/movie/tmdb/${id}`;
+                case 2: return `https://vidlink.pro/movie/${id}`;
+                case 3: return `https://vidsrc.to/embed/movie/${id}`;
+                case 4: return `https://multiembed.mov/?video_id=${id}&tmdb=1`;
+                default: return `https://autoembed.me/movie/tmdb/${id}`;
+            }
+        }
+
+        function ndryshoServer(serverNum) {
+            currentServerNum = serverNum;
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById('srv-btn-' + i);
+                if (btn) {
+                    if (i === serverNum) {
+                        btn.className = 'px-2.5 py-1 rounded bg-red-600 text-white font-medium text-xs';
+                    } else {
+                        btn.className = 'px-2.5 py-1 rounded bg-zinc-900 text-zinc-300 hover:text-white font-medium text-xs';
+                    }
+                }
+            }
+            if (currentMovieId) {
+                const targetUrl = merrUrlServeri(serverNum, currentMovieId);
+                const frame = document.getElementById('stream-frame');
+                frame.src = targetUrl;
+                document.getElementById('player-external-link').href = targetUrl;
+            }
+        }
+
+        function hapPlayer(id, titulli) {
+            currentMovieId = id;
+            currentTitle = titulli;
+            const sec = document.getElementById('player-container');
+            const frame = document.getElementById('stream-frame');
+            const titleElem = document.getElementById('player-title');
+            const targetUrl = merrUrlServeri(currentServerNum, id);
+            frame.src = targetUrl;
+            document.getElementById('player-external-link').href = targetUrl;
+            titleElem.innerText = titulli + ' - ALFilms24 HD Stream';
+            sec.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function mbyllPlayer() {
+            const sec = document.getElementById('player-container');
+            const frame = document.getElementById('stream-frame');
+            frame.src = '';
+            sec.classList.add('hidden');
+        }
+
+        renditFilmat(filmatDemo);
+    </script>
+</body>
+</html>

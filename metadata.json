@@ -1,0 +1,6 @@
+{
+  "name": "ALFilms24",
+  "description": "Platforma moderne për shikimin e filmave dhe serialeve me titra shqip në HD & 4K, me mbështetje për API të personalizuara nga përdoruesi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
